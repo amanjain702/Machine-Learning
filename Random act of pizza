@@ -1,0 +1,239 @@
+import json
+import matplotlib.pyplot as plt
+import pandas as pd
+import tensorflow as tf
+
+
+import sklearn.ensemble 
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+
+import sklearn.datasets
+import sklearn.linear_model
+import sklearn.feature_extraction.text
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.pipeline import Pipeline
+import sklearn.naive_bayes
+from sklearn.decomposition import PCA
+
+
+import nltk
+nltk.download('stopwords')
+import nltk.corpus
+import nltk.stem.porter
+
+import random
+import string
+
+
+
+f=open('C:\\Users\\AMANJAIN\\Desktop\\MLfiles\\FreePizaa\\train.json')
+data=f.read()
+data=json.loads(data)
+
+df=pd.DataFrame(data)
+
+
+
+poter_stemmer=nltk.stem.porter.PorterStemmer()
+
+stopWords=set(nltk.corpus.stopwords.words('english'))
+analyzer = CountVectorizer().build_analyzer()
+
+
+trainData=df['request_title']
+
+def stemmed_words(trainData):
+  return (poter_stemmer.stem(w) for w in analyzer(trainData))
+
+
+
+vect=CountVectorizer(stop_words=stopWords,analyzer=stemmed_words)
+tf_train=vect.fit_transform(trainData)
+x=(tf_train.toarray())
+
+
+
+y=df['requester_received_pizza']
+
+
+x_train,x_test,y_train,y_test=sklearn.model_selection.train_test_split(x,y,test_size=0.2)
+
+#USING Naive_Bayes
+
+print('Using naive bayes')
+model=sklearn.naive_bayes.GaussianNB()
+model.fit(x_train,y_train)
+print(model.score(x_test,y_test))
+
+x1=pd.DataFrame(x)
+
+y1=pd.Categorical(df['requester_received_pizza']).codes
+y1=pd.DataFrame(y1)
+
+
+
+
+print('Using LOgistic Regression')
+regl=sklearn.linear_model.LogisticRegression()
+regl.fit(x_train,y_train)
+print(regl.score(x_test,y_test))
+
+
+print('Using SVM')
+modelsvm=sklearn.svm.SVC(kernel='poly')
+modelsvm.fit(x_train,y_train)
+print(model.score(x_test,y_test))
+
+
+[nltk_data] Downloading package stopwords to C:\Users\Saurav
+[nltk_data]     Akolia\AppData\Roaming\nltk_data...
+[nltk_data]   Package stopwords is already up-to-date!
+Using naive bayes
+0.474009900990099
+Using LOgistic Regression
+0.7363861386138614
+Using SVM
+0.474009900990099
+
+
+# Using request_text
+
+
+f=open('C:\\Users\\AMANJAIN\\Desktop\\MLfiles\\FreePizaa\\train.json')
+data=f.read()
+data=json.loads(data)
+
+df=pd.DataFrame(data)
+
+
+
+poter_stemmer=nltk.stem.porter.PorterStemmer()
+
+stopWords=set(nltk.corpus.stopwords.words('english'))
+analyzer = CountVectorizer().build_analyzer()
+
+
+trainData=df['request_text_edit_aware']
+
+def stemmed_words(trainData):
+  return (poter_stemmer.stem(w) for w in analyzer(trainData))
+
+
+
+vect=CountVectorizer(stop_words=stopWords,analyzer=stemmed_words)
+tf_train=vect.fit_transform(trainData)
+
+x=(tf_train.toarray())
+y=df['requester_received_pizza']
+
+
+x_train,x_test,y_train,y_test=sklearn.model_selection.train_test_split(x,y,test_size=0.2)
+
+#USING naive bayes
+
+print('Using Naive_bayes')
+model=sklearn.naive_bayes.GaussianNB()
+model.fit(x_train,y_train)
+print(model.score(x_test,y_test))
+
+x1=pd.DataFrame(x)
+
+y1=pd.Categorical(df['requester_received_pizza']).codes
+y1=pd.DataFrame(y1)
+
+
+
+print('Using LOgistic Regression')
+regl=sklearn.linear_model.LogisticRegression()
+regl.fit(x_train,y_train)
+print(regl.score(x_test,y_test))
+
+
+
+print('Using SVM')
+modelsvm=sklearn.svm.SVC(kernel='poly')
+modelsvm.fit(x_train,y_train)
+print(model.score(x_test,y_test))
+
+Using Naive_bayes
+0.4591584158415842
+Using LOgistic Regression
+0.6856435643564357
+Using SVM
+0.4591584158415842
+
+#USING numerical_data
+
+f=open('C:\\Users\\AMANJAIN\\Desktop\\MLfiles\\FreePizaa\\train.json')
+data=f.read()
+data=json.loads(data)
+c=0
+a=[]
+b=[]
+
+for x in data:
+	
+	del x['request_text']
+	del x['request_text_edit_aware']
+	del x['request_title']
+	del x['requester_subreddits_at_request']
+	del x['requester_username']
+	del x['giver_username_if_known']
+	del x['request_id']
+	del x['requester_user_flair']
+
+	del x['requester_days_since_first_post_on_raop_at_request']
+	del x['requester_days_since_first_post_on_raop_at_retrieval']
+	del x['requester_number_of_posts_on_raop_at_request']
+
+
+
+df=pd.DataFrame(data)		
+
+y=df['requester_received_pizza']
+df=df.drop(['requester_received_pizza'],axis=1)
+x=df
+
+#USing Random Forest
+
+print('USING Random Forest')
+x_train,x_test,y_train,y_test=sklearn.model_selection.train_test_split(x,y,test_size=0.2)
+
+clfr=sklearn.ensemble.RandomForestClassifier(random_state=0)
+clfr.fit(x_train,y_train)
+
+print(clfr.score(x_test,y_test))
+
+
+#USING Logistic Regression
+
+
+print('USING Logistic Regression')
+regl=sklearn.linear_model.LogisticRegression()
+
+regl.fit(x_train,y_train)
+print(regl.score(x_test,y_test))
+
+#USING Naive Bayes
+
+print('USING naive Bayes')
+model=sklearn.naive_bayes.GaussianNB()
+model.fit(x_train,y_train)
+print(model.score(x_test,y_test))
+
+
+#USING SVM
+
+print('Using SVM')
+modelsvm=sklearn.svm.SVC(kernel='poly')
+modelsvm.fit(x_train,y_train)
+print(model.score(x_test,y_test))
+
+USING Random Forest
+0.8527227722772277
+USING Logistic Regression
+0.7574257425742574
+USING naive Bayes
+0.7512376237623762
+Using SVM
+0.7512376237623762
